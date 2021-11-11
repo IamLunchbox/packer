@@ -1,0 +1,13 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu-vm
+    username: ubuntu
+    # Generated via: printf ubuntu | mkpasswd -m sha-512 -S vagrant. -s
+    password: "$6$vagrant.$JcV2FqG6S8lZVGjuWr1pM5PGmGRMuDjSPoOMnoxOT00l6JsAzcjEJI5.ilMlR5lUoGc3Syer7jefrFrM/9/mv0"
+  early-commands:
+    # otherwise packer tries to connect and exceed max attempts:
+    - systemctl stop ssh
+  ssh:
+    install-server: true

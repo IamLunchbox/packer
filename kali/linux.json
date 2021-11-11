@@ -1,0 +1,127 @@
+{
+    "builders": [
+      {
+        "type": "virtualbox-iso",
+        "guest_os_type": "Debian_64",
+        "iso_url": "{{user `iso_url`}}",
+        "iso_checksum": "{{user `iso_checksum`}}",
+        "headless": "{{user `headless` }}",
+        "disk_size": "{{user `disk_size` }}",
+        "communicator": "ssh",
+        "ssh_username": "kali",
+        "ssh_password": "kali",
+        "ssh_wait_timeout": "30m",
+        "output_directory": "{{ user `build_directory` }}/packer-{{user `template`}}-virtualbox",
+        "http_directory": "{{user `http_path` }}",
+        "shutdown_command": "echo '{{ user `password` }}' | sudo -S shutdown -P now",
+        "post_shutdown_delay": "{{ user `post_shutdown_time` }}",
+        "vm_name": "{{ user `vm_name` }}",
+        "virtualbox_version_file": ".vbox_version",
+        "guest_additions_mode": "{{ user `guest_additions_mode` }}",
+        "vboxmanage": [
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--memory",
+            "{{user `memory`}}"
+          ],
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--graphicscontroller",
+            "{{user `graphicscontroller`}}"
+          ],
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--vram",
+            "{{user `vramsize`}}"
+          ],
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--audio",
+            "{{user `audio`}}"
+          ],
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--usb",
+            "{{ user `usb` }}"
+          ],
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--cpus",
+            "{{ user `cpus` }}"
+          ]
+        ],
+        "vboxmanage_post": [
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--vrde",
+            "off"
+          ]
+        ],
+        "boot_command": [
+          "<esc><wait>",
+          "install preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+          "debian-installer=en_US.UTF-8 auto locale=en_US kbd-chooser/method=de <wait>",
+          "netcfg/get_hostname={{ .Name }} ",
+          "netcfg/get_domain={{ .Name }} ",
+          "fb=false ",
+          "debconf/frontend=noninteractive ",
+          "console-setup/ask_detect=false <wait>",
+          "console-keymaps-at/keymap=de ",
+          "keyboard-configuration/xkb-keymap=de <wait>",
+          "<enter><wait>"
+        ]
+      }
+    ],
+    "provisioners":[
+      {
+        "environment_vars": [
+          "HOME_DIR=/home/kali",
+          "desktop_env={{user `desktop_env`}}",
+          "password={{user `password`}}"
+        ],
+        "execute_command": "echo 'kali' | {{.Vars}} sudo -S -E sh -ux '{{.Path}}'",
+        "expect_disconnect": true,
+        "scripts": [
+            "{{user `scripts_dir`}}/sshd.sh",
+            "{{user `scripts_dir`}}/virtualbox.sh",
+            "{{user `scripts_dir`}}/networking.sh",
+            "{{user `scripts_dir`}}/tools.sh",
+            "{{user `scripts_dir`}}/cleanup.sh",
+            "{{user `scripts_dir`}}/minimize.sh"
+        ],
+        "type":"shell"
+      }
+    ],
+    "description": "{{user `description`}}",
+    "variables":{
+      "build_directory": "/tmp/packer_builds",
+      "desktop_env": "xfce",
+      "guest_additions_mode": "disable",
+      "iso_url": "https://cdimage.kali.org/kali-2021.2/kali-linux-2021.2-installer-amd64.iso",
+      "iso_checksum": "ef83bafe1f19088666a8080d7ea07bd4f8da2fda0fcb3ef5f2ce2658f349c119",
+      "http_path": "{{template_dir}}/http",
+      "preseed_file": "preseed.cfg",
+      "scripts_dir": "{{template_dir}}/scripts",
+      "vm_name": "Kali-Rolling-{{user `desktop_env`}}",
+      "vm_version":"1.0",
+      "headless":"false",
+      "template": "kali-rolling",
+      "post_shutdown_time": "2m",
+      "cpus":"2",
+      "usb": "on",
+      "memory": "8192",
+      "disk_size": "40000",
+      "description": "Kali box created with Packer",
+      "graphicscontroller": "vmsvga",
+      "audio": "pulse",
+      "vramsize": "64",
+      "password": "kali"
+    }
+  }

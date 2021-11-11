@@ -1,0 +1,24 @@
+# Cache objects
+packer_cache/
+
+# Crash log
+crash.log
+
+# For built boxes
+*.box
+
+output-*/
+# if temporary files are created
+tmp/
+
+# a default build-dir used by some configurations
+builds/
+
+# any of exported virtual-disks and virtual boxes
+*.ovf
+*.iso
+*.vmdk
+*.vdi
+
+# a variables file
+variables.json
