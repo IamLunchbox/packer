@@ -55,4 +55,7 @@ systemctl set-default graphical.target
 usermod -a -G vboxsf,kali-trusted kali
 
 timedatectl set-timezone "Europe/Berlin"
+
+cd $HOME/Repos && git clone https://github.com/swisskyrepo/PayloadsAllTheThings 
+
 chown -R kali:kali $HOME
